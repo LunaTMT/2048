@@ -14,23 +14,13 @@ SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 FPS = 60
 
-"""
-2048	4X4
-4096	5X5
-8192	6X6
-16384	7X7
-32768	8X8
-65536 	9X9
-131072	10X10
-"""
-
-MAX_TILES = {4  : 2048,
-             5  : 4096,
-             6  : 8192,
-             7  : 16384,
-             8  : 32768,
-             9  : 65536,
-             10 : 131072}
+GRID_GOAL = {4  : '2048',
+             5  : '4096',
+             6  : '8192',
+             7  : '16384',
+             8  : '32768',
+             9  : '65536',
+             10 : '131072'}
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("2048")
@@ -40,7 +30,6 @@ class Game:
     def __init__(self):
         self.running = True
         self.buttons = []
-
         self.init_menu_buttons()
 
     def handle_events(self):
@@ -48,9 +37,16 @@ class Game:
             if event.type == pygame.QUIT:
                 self.running = False
 
-            if gamestate.show_menu:
+            if gamestate.handle_menu_buttons:
                 for button in self.buttons:
-                    button.handle_event(event)
+                    selected = button.handle_event(event)
+
+                    if selected:
+                        pygame.display.set_caption(button.highlight_text)
+                        gamestate.handle_menu_buttons = False
+                        gamestate.dissolve_buttons = True
+                        self.start_time = pygame.time.get_ticks()
+
 
 
     def update(self):
@@ -62,6 +58,19 @@ class Game:
         if gamestate.show_menu:
             for button in self.buttons:
                 button.draw()
+
+                if gamestate.dissolve_buttons:
+                    has_dissolved = button.dissolve(self.start_time)  
+ 
+                    if has_dissolved:
+                        self.buttons = []
+                        gamestate.show_menu = False
+                        gamestate.dissolve_buttons = False
+                        gamestate.play_game = True
+                        break
+
+        if gamestate.play_game:
+            print("playing")
 
         pygame.display.flip()
 
@@ -77,7 +86,7 @@ class Game:
     
     def init_menu_buttons(self):
         for i, grid in enumerate(range(4, 11), start=0):
-            button = MenuButton(screen, y=(i*80) + 30 , width=200, height=60, text=f"{grid} X {grid}")
+            button = MenuButton(screen, y=(i*80) + 30 , width=200, height=60, text=f"{grid} X {grid}", highlight_text=GRID_GOAL[grid])
             button.center_x()
             self.buttons.append(button)
 

@@ -5,7 +5,7 @@ import assets.colours as colours
 #This class centers as the parent class for menu_button and reset_button
 class Button:
 
-    def __init__(self, screen, x=0, y=0, width=50, height=50, text=None, font=None):
+    def __init__(self, screen, x=0, y=0, width=50, height=50, font=None, text=None):
         self.screen = screen
 
         #default rectangle
@@ -17,7 +17,7 @@ class Button:
         self.surface = pygame.Surface((width, height), pygame.SRCALPHA)
 
         #Default appearance
-        self.text = text
+        self.default_text = self.text = text
         self.font = font
         self.rect_colour = colours.WHITE
         self.text_colour = colours.WHITE
@@ -25,7 +25,8 @@ class Button:
         self.hover = False
         self.clicked = False
         
-        self.select_sound = pygame.mixer.Sound("assets\sounds\click.wav")
+        self.select_sound = pygame.mixer.Sound("assets/sounds/click.wav")
+        self.select_sound.set_volume(0.1)
 
    
     def draw(self) -> None:
@@ -51,7 +52,7 @@ class Button:
             if self.rect.collidepoint(event.pos):
                 self.clicked = True
                 self.select_sound.play()
-                return self.text
+                return self.default_text
            
                 
     def center(self) -> None:
