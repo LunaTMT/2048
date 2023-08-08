@@ -4,6 +4,7 @@ import sys
 import assets.colours as colour
 import gamestate
 
+from board.board import Board
 from buttons.menu_button import MenuButton
 
 # Initialize Pygame
@@ -46,6 +47,9 @@ class Game:
                         gamestate.handle_menu_buttons = False
                         gamestate.dissolve_buttons = True
                         self.start_time = pygame.time.get_ticks()
+                        
+                        rows = columns = int(selected[0:2])
+                        self.board = Board(screen, rows, columns)
 
 
 
@@ -70,7 +74,7 @@ class Game:
                         break
 
         if gamestate.play_game:
-            print("playing")
+            self.board.draw()
 
         pygame.display.flip()
 

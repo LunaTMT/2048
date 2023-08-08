@@ -38,14 +38,13 @@ class MenuButton(Button):
     """The following 4 functions are self explanatory"""
     def _draw_base_rectangle(self):
         outer_rect = pygame.Rect(0, 0, self.width, self.height)
-        pygame.draw.rect(self.surface, self.outer_rect_colour, outer_rect, border_radius=20)
+        pygame.draw.rect(self.surface, self.outer_rect_colour, outer_rect, border_radius=5)
 
     def _draw_inner_rectangle(self):
         inner_x = self.width * 0.1 // 2
         inner_y = self.height * 0.2 // 2
         inner_rect = pygame.Rect(inner_x, inner_y, self.width*0.9, self.height*0.8)
-        pygame.draw.rect(self.surface, colours.inner_rect, inner_rect, border_radius=20)
-
+        pygame.draw.rect(self.surface, colours.inner_rect, inner_rect, border_radius=5)
 
     def _draw_text(self):
         text = self.font.render(self.text, True, self.text_colour)
