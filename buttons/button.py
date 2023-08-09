@@ -5,8 +5,9 @@ import assets.colours as colours
 #This class centers as the parent class for menu_button and reset_button
 class Button:
 
-    def __init__(self, screen, x=0, y=0, width=50, height=50, font=None, text=None):
-        self.screen = screen
+    def __init__(self, interface, x=0, y=0, width=50, height=50, font=None, text=None):
+        self.interface = interface
+        self.screen = game.screen
 
         #default rectangle
         self.x = x
@@ -37,6 +38,7 @@ class Button:
         self.screen.blit(self.surface, (self.rect.x, self.rect.y))
 
         if text:        
+            
             text = self.font.render(self.text, True, self.text_colour)
             text_rect = text.get_rect(center = self.rect.center)
             self.screen.blit(text, text_rect)

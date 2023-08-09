@@ -9,28 +9,36 @@ class Tile:
         self.screen = screen
         self.row = row
         self.column = column
-        self.position = (self.row, self.column)
+        
         self.x = x
         self.y = y
-        self.width, self.height  = cell_size
+        self.coord = (self.x, self.y)
 
-        self.value = 2
+        self.width, self.height = cell_size
+        
+        self.inner_width = self.inner_height = self.width * 0.90
+        self.x += (self.width - self.inner_width) // 2
+        self.y = self.y + (self.height - self.inner_height) // 2
+        
+        self.value = 0
+        self.colour = colours.default_tile
 
+        self.slide = False
+        self.target_x, self.target_y = self.target = self.coord
+
+       # self.width = self.height = self.width * 0.90
+        #self.x += self.width // 2
+        #self.y += self.height // 2
+
+
+        self.current_position = self.coord
+        
     def draw(self):
         
-        #inner_rect = pygame.Rect((WIDTH - INNER_RECT_SIZE) // 2, (HEIGHT - INNER_RECT_SIZE) // 2, INNER_RECT_SIZE, INNER_RECT_SIZE)
+        self.rect_colour = colours.get_number_colour(self.value)
 
-        """Draw one large rectangle for the outter rectangle of the tile, its pointless having it here plus round its edges as in actual game"""
-        outer_rect = pygame.Rect((self.x, self.y, self.width, self.height))
-        pygame.draw.rect(self.screen, colours.outer_rect, outer_rect)
-
-        
-        inner_width = inner_height = self.width * 0.90
-        inner_x = self.x + (self.width - inner_width) // 2
-        inner_y = self.y + (self.height - inner_height) // 2
-
-        inner_rect = pygame.Rect((inner_x, inner_y, inner_width, inner_height))
-        pygame.draw.rect(self.screen, colours.inner_rect, inner_rect, border_radius=5)
+        tile = pygame.Rect((self.x, self.y, self.inner_width, self.inner_height))
+        pygame.draw.rect(self.screen, self.rect_colour, tile, border_radius=3)
 
         if self.value:
             
@@ -42,8 +50,8 @@ class Tile:
             font = pygame.font.Font(None, int(self.width * 0.7))
             text_surface = font.render(str(self.value), True, colour)
 
-            text_x = self.x + (self.width - text_surface.get_width()) // 2
-            text_y = (self.y + (self.height - text_surface.get_height()) // 2 ) + self.height * 0.05
+            text_x = self.x + (self.inner_width - text_surface.get_width()) // 2
+            text_y = self.y + (self.inner_height - text_surface.get_height()) // 2  + (self.height * 0.05)
 
         
             self.screen.blit(text_surface, (text_x, text_y))

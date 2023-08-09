@@ -6,6 +6,7 @@ import gamestate
 
 from board.board import Board
 from buttons.menu_button import MenuButton
+from buttons.return_button import ReturnButton
 
 # Initialize Pygame
 pygame.init()
@@ -49,8 +50,12 @@ class Game:
                         self.start_time = pygame.time.get_ticks()
                         
                         rows = columns = int(selected[0:2])
-                        self.board = Board(screen, rows, columns)
+                        self.board = Board(self, rows, columns)
+                        self.return_button = ReturnButton(self)
 
+            if gamestate.play_game:
+                self.board.handle(event)
+                self.return_button.handle(event)
 
 
     def update(self):
@@ -68,13 +73,12 @@ class Game:
  
                     if has_dissolved:
                         self.buttons = []
-                        gamestate.show_menu = False
-                        gamestate.dissolve_buttons = False
-                        gamestate.play_game = True
+                        gamestate.initiate_game()
                         break
 
         if gamestate.play_game:
             self.board.draw()
+            self.return_button.draw()
 
         pygame.display.flip()
 
@@ -90,7 +94,7 @@ class Game:
     
     def init_menu_buttons(self):
         for i, grid in enumerate(range(4, 11), start=0):
-            button = MenuButton(screen, y=(i*80) + 30 , width=200, height=60, text=f"{grid} X {grid}", highlight_text=GRID_GOAL[grid])
+            button = MenuButton(self, y=(i*80) + 30 , width=200, height=60, text=f"{grid} X {grid}", highlight_text=GRID_GOAL[grid])
             button.center_x()
             self.buttons.append(button)
 

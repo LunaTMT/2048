@@ -7,15 +7,15 @@ from .button import Button
 
 class MenuButton(Button):
     
-    def __init__(self, screen, x=0, y=0, width=0, height=0, font=None, text=None, highlight_text=None):
-        super().__init__(screen, x, y, width, height, font, text)
+    def __init__(self, interface, x=0, y=0, width=0, height=0, font=None, text=None, highlight_text=None):
+        super().__init__(interface, x, y, width, height, font, text)
 
         self.font = pygame.font.Font(None, 30)
         self.highlight_text = highlight_text
 
         
         self.default_text_colour = self.text_colour = colours.text,
-        self.default_outer_rect_colour = self.outer_rect_colour = colours.outer_rect
+        self.default_outer_rect_colour = self.outer_rect_colour = colours.board
         self.default_text = self.text
 
     def draw(self):
@@ -44,7 +44,7 @@ class MenuButton(Button):
         inner_x = self.width * 0.1 // 2
         inner_y = self.height * 0.2 // 2
         inner_rect = pygame.Rect(inner_x, inner_y, self.width*0.9, self.height*0.8)
-        pygame.draw.rect(self.surface, colours.inner_rect, inner_rect, border_radius=5)
+        pygame.draw.rect(self.surface, colours.default_tile, inner_rect, border_radius=5)
 
     def _draw_text(self):
         text = self.font.render(self.text, True, self.text_colour)
