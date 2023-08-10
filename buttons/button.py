@@ -14,7 +14,7 @@ class Button:
         self.y = y
         self.width = width
         self.height = height
-        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
+        self.rect = pygame.Rect(self.x, self.y, width, height)
         self.surface = pygame.Surface((width, height), pygame.SRCALPHA)
 
         #Default appearance

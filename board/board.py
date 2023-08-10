@@ -34,20 +34,27 @@ class Board(list):
         self.height = int(self.cell_height * self.rows * 1.04)
         
         self.x_center_offset = (game.SCREEN_WIDTH - (self.cell_height * self.columns)) / 2
-        self.y_center_offset = ((game.SCREEN_HEIGHT - (self.cell_height * self.rows)) / 2)
+        self.y_center_offset = ((game.SCREEN_HEIGHT - (self.cell_height * self.rows)) / 2) + 30
 
-        self.rect = pygame.Rect((int(self.x_center_offset - (self.width * 0.02)) , 
-                                       int(self.y_center_offset - (self.width * 0.02)), 
-                                       self.width, self.height))
+        self.rect = pygame.Rect((int(self.x_center_offset - (self.width * 0.02)), 
+                                 int(self.y_center_offset - (self.width * 0.02)), 
+                                self.width, self.height))
 
+        self.score_width = self.width * 0.3    
+        self.score_height = self.height * 0.1
+        self.score_rect_x = self.rect.x
+        self.score_rect_y = self.rect.y - self.score_height - 5
+
+        self.font = pygame.font.Font(None, 50)
+
+        self.reset_button = ResetButton(self)
+        self.best = 0
+        self.generate()
+
+    def generate(self):
+        self.score = 0
         self.generate_tiles()
         self.generate_random_block()
-
-       
-        self.reset_button = ResetButton(self)
-        self.score = 0
-        self.best = 0
-    
 
     def generate_tiles(self):
     
@@ -85,7 +92,25 @@ class Board(list):
         
 
     def _draw_score(self):
-        pass
+    
+
+        text_surface = self.font.render(str(self.score), True, colours.WHITE)
+        text_rect = text_surface.get_rect()
+        text_width = text_rect.width
+        text_height = text_rect.height
+
+        if text_width > self.score_width:
+            self.score_width = text_width + 30
+
+        self.score_rect = pygame.Rect(self.score_rect_x, self.score_rect_y, self.score_width, self.score_height)
+        
+        text_x = self.score_rect.x + (self.score_rect.width - text_width) // 2
+        text_y = (self.score_rect.y + (self.score_rect.height - text_height) // 2 ) + (self.score_rect.height * 0.05)
+
+        
+
+        pygame.draw.rect(game.screen, colours.default_tile, self.score_rect, border_radius=5)
+        game.screen.blit(text_surface, (text_x, text_y))
 
     def _draw_best(self):
         pass
@@ -126,6 +151,7 @@ class Board(list):
                 if self[row][column].value == self[new_row][new_column].value:
                     if new_position in locked_positions: break
 
+                    self.score += self[row][column].value
                     locked_positions.add((new_position))
 
                     new_tile = self[new_row][new_column]
