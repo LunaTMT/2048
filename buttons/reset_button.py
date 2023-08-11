@@ -32,13 +32,11 @@ class ResetButton():
         self._draw_text()
        
 
-
     def _draw_rect(self):
         if self.hover:
             self.rect_colour = colours.yellow
         else:
             self.rect_colour = self.default_rect_colour
-        
         
         pygame.draw.rect(game.screen, self.rect_colour, self.rect, border_radius=5)
 

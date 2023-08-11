@@ -42,11 +42,20 @@ class Board(list):
 
         self.score_width = self.width * 0.3    
         self.score_height = self.height * 0.1
-        self.score_rect_x = self.rect.x
-        self.score_rect_y = self.rect.y - self.score_height - 5
 
-        self.font = pygame.font.Font(None, 50)
+        self.score_x = self.rect.x
+        self.score_y = self.rect.y - self.score_height - 5
 
+        self.best_width = self.score_width
+        self.best_height = self.score_height
+        self.best_x = self.score_x + self.score_width + 20
+        self.best_y = self.score_y
+
+        
+        self.number_font = pygame.font.Font(None, 50)
+        self.title_font = pygame.font.Font(None, int(self.score_width * 0.2))
+
+        
         self.reset_button = ResetButton(self)
         self.best = 0
         self.generate()
@@ -66,7 +75,7 @@ class Board(list):
                 y =  (row * self.cell_height)  
                 y += self.y_center_offset
                 
-                tile = Tile(self.screen, row, column, x, y, self.cell_size)     
+                tile = Tile(self, row, column, x, y, self.cell_size)     
                 self[row][column] = tile 
          
     def generate_random_block(self):
@@ -82,39 +91,62 @@ class Board(list):
         self.reset_button.draw()
         self._draw_score()
         self._draw_best()
+        self._draw_base()
 
-        pygame.draw.rect(self.screen, colours.board, self.rect, border_radius=10)
         for row in self:
-            print(row)
             for tile in row:
                 tile.draw()
-        
-        
-
-    def _draw_score(self):
     
+    def _draw_base(self):
+        pygame.draw.rect(self.screen, colours.board, self.rect, border_radius=10)
+    
+    def _draw_score(self):
+        score_text = self.number_font.render(str(self.score), True, colours.WHITE)
+        score_rect = score_text.get_rect()
+        score_width = score_rect.width
+        score_height = score_rect.height
 
-        text_surface = self.font.render(str(self.score), True, colours.WHITE)
-        text_rect = text_surface.get_rect()
-        text_width = text_rect.width
-        text_height = text_rect.height
+        if score_width > self.score_width:
+            self.score_width = score_width + 30
 
-        if text_width > self.score_width:
-            self.score_width = text_width + 30
-
-        self.score_rect = pygame.Rect(self.score_rect_x, self.score_rect_y, self.score_width, self.score_height)
+        self.score_rect = pygame.Rect(self.score_x, self.score_y, self.score_width, self.score_height)
         
-        text_x = self.score_rect.x + (self.score_rect.width - text_width) // 2
-        text_y = (self.score_rect.y + (self.score_rect.height - text_height) // 2 ) + (self.score_rect.height * 0.05)
-
-        
+        text_x = self.score_rect.x + (self.score_rect.width - score_width) // 2
+        text_y = (self.score_rect.y + (self.score_rect.height - score_height) // 2 ) + (self.score_rect.height * 0.05)
 
         pygame.draw.rect(game.screen, colours.default_tile, self.score_rect, border_radius=5)
-        game.screen.blit(text_surface, (text_x, text_y))
+        game.screen.blit(score_text, (text_x, text_y))
+
+        
+        title = self.title_font.render(str("Score"), True, colours.text)
+        title_rect = title.get_rect()
+
+        title_x = self.score_x + (self.score_width - title_rect.width) // 2
+        title_y = (self.score_y + (self.score_height - title_rect.height) // 2) - 35
+
+        game.screen.blit(title, (title_x, title_y))
+
 
     def _draw_best(self):
-        pass
+        self.best_score_rect = pygame.Rect(self.best_x, self.best_y, self.best_width, self.best_height)
+        pygame.draw.rect(game.screen, colours.default_tile, self.best_score_rect, border_radius=5)
+        
+        best_text = self.number_font.render(str(self.best), True, colours.WHITE)
+        best_rect = best_text.get_rect()
 
+        text_x = self.best_x + (self.best_width - best_rect.width) // 2
+        text_y = (self.best_y + (self.best_height - best_rect.height) // 2 ) + (self.best_height * 0.05)
+        
+        game.screen.blit(best_text, (text_x, text_y))
+
+
+        title = self.title_font.render(str("Best"), True, colours.text)
+        title_rect = title.get_rect()
+
+        title_x = self.best_x + (self.best_width - title_rect.width) // 2
+        title_y = (self.best_y + (self.best_height - title_rect.height) // 2) - 35
+
+        game.screen.blit(title, (title_x, title_y))
     
 
     def handle(self, event):
@@ -141,7 +173,7 @@ class Board(list):
     def shift(self, direction, row, column, locked_positions):
         
     
-        if self[row][column] != 0:
+        if self[row][column].value != 0:
         
             new_position = new_row, new_column =  self.get_next_position(direction, (row, column))
             positions = [(new_row, new_column)]
@@ -152,12 +184,9 @@ class Board(list):
                     if new_position in locked_positions: break
 
                     self.score += self[row][column].value
+                    self.best = max(self.best, self.score)
+                    
                     locked_positions.add((new_position))
-
-                    new_tile = self[new_row][new_column]
-                    self[row][column].slide = True
-                    self[row][column].target = self[new_row][new_column].coord
-                    print((new_tile.x, new_tile.y))
 
                     self[new_row][new_column].value *= 2
                     self[row][column].value = 0
@@ -173,9 +202,6 @@ class Board(list):
                 new_row, new_column = positions[-2]
                 self[row][column].value, self[new_row][new_column].value = self[new_row][new_column].value, self[row][column].value  
                 
-
-                self[row][column].slide = True
-                self[row][column].target = self[new_row][new_column].coord
                 
 
     def get_next_position(self, direction, current_position):
