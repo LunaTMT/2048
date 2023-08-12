@@ -24,7 +24,6 @@ class ReturnButton(Button):
         Or else just draws the default button
         """
         self.image = self.hover_image if self.hover else self.default_image 
-
         self.screen.blit(self.image, self.rect)
 
 
@@ -39,7 +38,7 @@ class ReturnButton(Button):
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if self.rect.collidepoint(event.pos):
-                gamestate.reset()
+                gamestate.return_to_menu()
                 self.init_menu_buttons()
                 self.select_sound.play()
 

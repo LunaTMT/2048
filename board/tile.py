@@ -8,7 +8,8 @@ class Tile:
         self.board = board
         self.row = row
         self.column = column
-        
+        self.position = (row, column)
+
         self.x = x 
         self.y = y 
         

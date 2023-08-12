@@ -15,6 +15,7 @@ pygame.init()
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 FPS = 60
+goal = 0
 
 GRID_GOAL = {4  : '2048',
              5  : '4096',
@@ -27,6 +28,8 @@ GRID_GOAL = {4  : '2048',
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("2048")
 clock = pygame.time.Clock()
+
+
 
 class Game:
     def __init__(self):
@@ -45,6 +48,10 @@ class Game:
 
                     if selected:
                         pygame.display.set_caption(button.highlight_text)
+                        global goal 
+                        goal = button.highlight_text
+                        print(goal)
+
                         gamestate.handle_menu_buttons = False
                         gamestate.dissolve_buttons = True
                         self.start_time = pygame.time.get_ticks()
@@ -53,7 +60,7 @@ class Game:
                         self.board = Board(self, rows, columns)
                         self.return_button = ReturnButton(self)
 
-            if gamestate.play_game:
+            if gamestate.play_game                                                                                                          :
                 self.board.handle(event)
                 self.return_button.handle(event)
 
@@ -79,6 +86,8 @@ class Game:
         if gamestate.play_game:
             self.board.draw()
             self.return_button.draw()
+        
+        
 
         pygame.display.flip()
 

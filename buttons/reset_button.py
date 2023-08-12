@@ -1,6 +1,7 @@
 import pygame
 import game
 import time
+import gamestate
 
 from board.tile import Tile
 from .button import Button
@@ -8,14 +9,14 @@ import assets.colours as colours
 
 class ResetButton():
 
-    def __init__(self, board):
-        self.text = "New Game"
+    def __init__(self, board, text, x , y):
+        self.text = text
         self.board = board
 
         self.width = board.width * 0.3        
         self.height = board.height * 0.1
-        self.x = (board.rect.x + board.rect.width) - self.width
-        self.y = board.rect.y - self.height - 5
+        self.x = x 
+        self.y = y 
   
         self.font = pygame.font.Font(None, int(self.width * 0.2))
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
@@ -40,8 +41,6 @@ class ResetButton():
         
         pygame.draw.rect(game.screen, self.rect_colour, self.rect, border_radius=5)
 
-
-
     def _draw_text(self):
         text = self.font.render(self.text, True, colours.WHITE)
         text_x = self.x + (self.width - text.get_width()) // 2
@@ -56,10 +55,12 @@ class ResetButton():
         """
         if event.type == pygame.MOUSEMOTION:
             self.hover = True if self.rect.collidepoint(event.pos) else False
+            
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if self.rect.collidepoint(event.pos):
                 self.board.generate()
+                gamestate.reset_endgame_states()
                 self.select_sound.play()
         
 
