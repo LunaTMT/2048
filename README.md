@@ -1,6 +1,6 @@
 # 2048
 
-Demonstration and Features
+## Demonstration and Features
 
 ### Menu
 
