@@ -4,11 +4,24 @@ Demonstration and Features
 
 ### Menu
 
+https://github.com/LunaTMT/2048/assets/44672093/ba18b6e9-60cf-45de-8857-3f27bae41e3c
+
+
 ### Win
+
+https://github.com/LunaTMT/2048/assets/44672093/20108dcb-8715-4d2f-9865-87b0580917a1
+
 
 ### Lose
 
+https://github.com/LunaTMT/2048/assets/44672093/4ec00e30-a5c5-4668-b9fc-a210a18ec149
+
+
 ### Restarting
+
+https://github.com/LunaTMT/2048/assets/44672093/232dd526-988d-42c6-811c-f52ec66cb046
+
+
 
 ## Installation & Setup
 
