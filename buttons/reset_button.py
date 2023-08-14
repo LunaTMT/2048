@@ -6,6 +6,7 @@ import gamestate
 from board.tile import Tile
 from .button import Button
 import assets.colours as colours
+import assets.sounds as sound
 
 class ResetButton():
 
@@ -24,8 +25,7 @@ class ResetButton():
 
         self.hover = False
         self.altered = False
-        self.select_sound = pygame.mixer.Sound("assets/sounds/click.wav")
-        self.select_sound.set_volume(0.1)
+
 
 
     def draw(self) -> None:
@@ -61,7 +61,7 @@ class ResetButton():
             if self.rect.collidepoint(event.pos):
                 self.board.generate()
                 gamestate.reset_endgame_states()
-                self.select_sound.play()
+                sound.click.play()
         
 
         

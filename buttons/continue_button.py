@@ -18,6 +18,6 @@ class ContinueButton(ResetButton):
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if self.rect.collidepoint(event.pos):
-                print("Continuefnc")
                 gamestate.reset_endgame_states()
+                gamestate.continuing = True
                 self.select_sound.play()

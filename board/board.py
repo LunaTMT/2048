@@ -9,6 +9,7 @@ from .tile import Tile
 
 import pygame
 import assets.colours as colours
+import assets.sounds as sound
 import game
 import gamestate
 
@@ -76,8 +77,7 @@ class Board(list):
                                             x =  (self.rect.centerx - self.box_width // 2 ) - (self.box_width * 0.8),
                                             y =  self.rect.centery - self.box_height // 2)
 
-        self.sweep_sound = pygame.mixer.Sound("assets/sounds/sweep.wav")
-        self.sweep_sound.set_volume(0.5)
+
 
         self.counter = 0
         self.best = 0
@@ -90,24 +90,6 @@ class Board(list):
 
     def generate_tiles(self):
         
-        board = [[0,0,0,0],
-         [0,8,4,2],
-         [256,128, 64,32],
-         [1024, 1024,512, 128]]
-
-        for r, row in enumerate(board):
-            for c, value in enumerate(row):
-                x =  (c * self.cell_width) 
-                x += self.x_center_offset
-                
-                y =  (r * self.cell_height)  
-                y += self.y_center_offset
-                
-                tile = Tile(self, r, c, x, y, self.cell_size)    
-                tile.value = value
-                self[r][c] = tile 
-        return
-
         for row in range(self.rows):
             for column in range(self.columns):
                 x =  (column * self.cell_width) 
@@ -122,6 +104,7 @@ class Board(list):
     def generate_random_block(self):
         #10% chance for 4 spawning
         #90% chance for 2 spawning
+        print("gen")
         row, column = randint(0, self.rows - 1), randint(0, self.columns - 1)
         while self[row][column].value != 0:
             row, column = randint(0, self.rows - 1), randint(0, self.columns - 1)
@@ -132,7 +115,8 @@ class Board(list):
 
         if self.get_remaining_spaces() == 0:
             self.check_lose()
-                    
+        elif not gamestate.continuing:
+            self.check_win()           
 
         self.reset_button.draw()
         self._draw_score()
@@ -244,7 +228,7 @@ class Board(list):
                
                     if not any(i for i in shifts): return False
                     else:
-                        #self.sweep_sound.play() 
+                        sound.sweep.play()
                         self.generate_random_block()
 
 
@@ -258,7 +242,7 @@ class Board(list):
              
                     if not any(i for i in shifts): return False
                     else:
-                        #self.sweep_sound.play()
+                        sound.sweep.play()
                         self.generate_random_block()
 
         else:
@@ -275,14 +259,13 @@ class Board(list):
 
     def shift(self, direction, row, column, locked_positions):
         
-        shifted = False
-
+    
         if self[row][column].value != 0:
-
+            shifted = False
             new_position = new_row, new_column =  self.get_next_position(direction, (row, column))
             positions = [(new_row, new_column)]
 
-            while self.in_bounds(row, column):
+            while (0 <= new_row < self.rows) and (0 <= new_column < self.columns):
 
                 if self[row][column].value == self[new_row][new_column].value:
                     if new_position in locked_positions: break
@@ -329,7 +312,10 @@ class Board(list):
 
         for row in self:
             for tile in row:
-                if tile.value == game.goal:
+
+                if tile.value == int(game.goal):
+                    sound.win.play()
+                    gamestate.continuing = True
                     gamestate.win = True
                     gamestate.end_game = True
                     self.end_game_text = "You Win"
@@ -354,7 +340,8 @@ class Board(list):
             gamestate.end_game = True
             self.end_game_text = "You Lose"
             self.end_game_text_colour = colours.text
-            print("lose")
+            sound.lose.play()
+ 
             
     def in_bounds(self, row, column):
         return (0 <= row < self.rows) and (0 <= column < self.columns)
