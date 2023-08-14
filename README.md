@@ -1,5 +1,17 @@
 # 2048
 
+Demonstration and Features
+
+### Menu
+
+### Win
+
+### Lose
+
+### Restarting
+
+## Installation & Setup
+
 * To run this program, please make sure you have [python](https://www.python.org/downloads/) installed on your system.
 
 <div align="center">
