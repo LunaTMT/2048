@@ -80,6 +80,7 @@ class Board(list):
                                             x =  (self.rect.centerx - self.box_width // 2 ) - (self.box_width * 0.8),
                                             y =  self.rect.centery - self.box_height // 2)
 
+        self.valid_inputs = (K_UP, K_DOWN, K_LEFT, K_RIGHT, K_w, K_s, K_a, K_d)
 
         
         self.generate()
@@ -231,47 +232,57 @@ class Board(list):
 
 
     def handle(self, event):
+        """
+        This function handles all inputs for the board that are made by the user
+        """
         self.reset_button.handle(event)
-        shifts = []
-        if not gamestate.end_game:
-            if event.type == KEYDOWN:
-                direction = pygame.key.name(event.key)
-                
-                if event.key in (K_UP, K_LEFT, K_w, K_a): 
-                    for row in range(self.rows):
-                        
-                        locked_positions = set()
-                        for column in range(self.columns):
-                            shifts += [(self.shift(direction, row, column, locked_positions))]
+        
+        """
+        Default index values for searching board for shift function
+        """
+        row_iterator = 1
+        row_start = 0
+        row_end = self.rows
 
-               
-                    if not any(i for i in shifts): return False
-                    else:
-                        sound.sweep.play()
-                        self.generate_random_block()
+        column_iterator = 1
+        column_start = 0
+        column_end = self.columns
 
+        """
+        If the key is down or right me must change the start and end values so the shift function works correctly
+        """
+        if event.type == KEYDOWN and event.key in (K_DOWN, K_RIGHT, K_s, K_d):
+            row_iterator = -1
+            row_start, row_end = row_end-1, -1
+            column_iterator = -1
+            column_start, column_end = column_end-1, -1
 
-                elif event.key in (K_DOWN, K_RIGHT, K_s, K_d):
-                    for row in reversed(range(self.rows)):
-                        
-                        locked_positions = set()
-                        for column in reversed(range(self.columns)):
-                            shifts += [(self.shift(direction, row, column, locked_positions))]
-
-             
-                    if not any(i for i in shifts): return False
-                    else:
-                        sound.sweep.play()
-                        self.generate_random_block()
+        #Whilst the game has not ended we want to handle all keyboard inputs 
+        if not gamestate.end_game and event.type == KEYDOWN and event.key in self.valid_inputs: 
+            shifts = []
+            direction = pygame.key.name(event.key)
+            
+            for row in range(row_start, row_end, row_iterator):
+                locked_positions = set() 
+                for column in range(column_start, column_end, column_iterator):
+                    shifts.append(self.shift(direction, row, column, locked_positions))
+            
+            #If there are absolutely no values that have moved we break out of the function by returning
+            if not any(has_shifted for has_shifted in shifts): return  
+            else:
+                #if there are tiles that have been shifted we generate a new block and play the move sound (sweep)
+                sound.sweep.play()
+                self.generate_random_block()
 
         else:
+            #When the game has ended (win or lose) we want to handle the middle screen buttons
             self.try_again_button.handle(event)
             
             if gamestate.win:
                 self.continue_button.handle(event)
         
         self.check_end_game()
-        return True
+        
     
 
 
@@ -299,13 +310,12 @@ class Board(list):
         elif direction in ("up", "w"):
             return (row - 1, column)
         
-        elif direction in ("down", "d"):
+        elif direction in ("down", "s"):
             return (row + 1, column)
 
 
     def shift(self, direction, row, column, locked_positions):
         
-    
         if self[row][column].value != 0:
             shifted = False
             new_position = new_row, new_column =  self.get_next_position(direction, (row, column))
