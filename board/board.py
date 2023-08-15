@@ -27,6 +27,10 @@ class Board(list):
         self.rows = rows
         self.columns = columns
 
+        self.score = 0
+        self.counter = 0
+        self.best = 0
+
         cell_width = (game.SCREEN_WIDTH * 0.75) // self.columns
         cell_height =  (game.SCREEN_HEIGHT * 0.75) // self.rows
         self.cell_width = self.cell_height = min(cell_width, cell_height) #set both the same so cell is perfect square
@@ -42,23 +46,22 @@ class Board(list):
                                  int(self.y_center_offset - (self.width * 0.02)), 
                                 self.width, self.height))
 
+        self.box_width = self.width * 0.3
+        self.box_height = (self.height * 0.1)
 
-        
+        self.number_font = pygame.font.Font(None, 50)
+        self.end_game_font = pygame.font.Font(None, 85)
+        self.title_font = pygame.font.Font(None, int(self.box_width * 0.2))
 
-        self.score_width = self.box_width = self.width * 0.3
-        self.score_height = self.box_height = (self.height * 0.1)
-
+        self.score_width = self.box_width 
+        self.score_height = self.box_height 
         self.score_x = self.rect.x
         self.score_y = self.rect.y - self.box_height - 5
 
         self.best_x = self.rect.centerx - self.box_width // 2
         self.best_y = self.score_y
 
-        
-        self.number_font = pygame.font.Font(None, 50)
-        self.end_game_font = pygame.font.Font(None, 85)
-        self.title_font = pygame.font.Font(None, int(self.box_width * 0.2))
-
+    
         self.transparent_surface = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
 
         
@@ -78,18 +81,24 @@ class Board(list):
                                             y =  self.rect.centery - self.box_height // 2)
 
 
-
-        self.counter = 0
-        self.best = 0
+        
         self.generate()
 
     def generate(self):
-        self.score = 0
+        """
+        This function generate the initial prerequisites for the board.
+        - The tiles and a random block must be placed on the board
+        """
+        #self.score = 0
         self.generate_tiles()
         self.generate_random_block()
 
     def generate_tiles(self):
-        
+        """
+        This function will generate X tiles for the board
+        where X = row * column
+        Each tile is placed accordingly to give the appearance of a KxK board
+        """
         for row in range(self.rows):
             for column in range(self.columns):
                 x =  (column * self.cell_width) 
@@ -102,18 +111,24 @@ class Board(list):
                 self[row][column] = tile 
          
     def generate_random_block(self):
-        #10% chance for 4 spawning
-        #90% chance for 2 spawning
+        """
+        This function will first find a tile on the board that is empty
+        It will generate a random number 2 or 4 with (90/10)%.
+        It will assign the tile this value
+        """
         row, column = randint(0, self.rows - 1), randint(0, self.columns - 1)
         while self[row][column].value != 0:
             row, column = randint(0, self.rows - 1), randint(0, self.columns - 1)
 
         self[row][column].value = choices(population=[2, 4], weights=[0.90, 0.10])[0]
 
+
+
     def draw(self):
-
-
-
+        """
+        This function draws all the components parts of the board
+        If the game has reached an end state (win or lose) the correct endstate will be shown on top of the board
+        """
         self.reset_button.draw()
         self._draw_score()
         self._draw_best()
@@ -124,16 +139,24 @@ class Board(list):
             self._draw_end_game()
 
     def _draw_base(self):
+        """
+        This funciton simple draws the base rectangle of the board
+        """
         pygame.draw.rect(self.screen, colours.BOARD, self.rect, border_radius=10)
-
-                
-    
+ 
     def _draw_tiles(self):
+        """
+        This function draws every tile for each tile that exists on the board
+        """
         for row in self:
             for tile in row:
                 tile.draw()
 
     def _draw_score(self):
+        """
+        This function will draw the score the player currently has in the game 
+        It also adjusts the rect size if the score is going to go over the boundaries of the rectangle that it is contained within
+        """
         score_text = self.number_font.render(str(self.score), True, colours.WHITE)
         score_rect = score_text.get_rect()
         score_width = score_rect.width
@@ -142,47 +165,53 @@ class Board(list):
         if score_width > self.score_width:
             self.score_width = score_width + 30
 
+        #Drawing base rectangle with altered size
         self.score_rect = pygame.Rect(self.score_x, self.score_y, self.score_width, self.score_height)
-        
+        pygame.draw.rect(game.screen, colours.DEFUALT_TILE, self.score_rect, border_radius=5)
+
+        #Drawing text
         text_x = self.score_rect.x + (self.score_rect.width - score_width) // 2
         text_y = (self.score_rect.y + (self.score_rect.height - score_height) // 2 ) + (self.score_rect.height * 0.05)
-
-        pygame.draw.rect(game.screen, colours.DEFUALT_TILE, self.score_rect, border_radius=5)
         game.screen.blit(score_text, (text_x, text_y))
-
         
+        #Draw "Score" Title above the box
         title = self.title_font.render(str("Score"), True, colours.GREY_BLACK)
         title_rect = title.get_rect()
-
         title_x = self.score_x + (self.score_width - title_rect.width) // 2
         title_y = (self.score_y + (self.score_height - title_rect.height) // 2) - 35
-
         game.screen.blit(title, (title_x, title_y))
 
     def _draw_best(self):
+        """
+        This funciton will draw the best score the player has achieved for that give board grid
+        """
+        #Base rectangle
         self.best_score_rect = pygame.Rect(self.best_x, self.best_y, self.box_width, self.box_height)
         pygame.draw.rect(game.screen, colours.DEFUALT_TILE, self.best_score_rect, border_radius=5)
         
+        #The best score
         best_text = self.number_font.render(str(self.best), True, colours.WHITE)
         best_rect = best_text.get_rect()
+        best_rect_text_x = self.best_x + (self.box_width - best_rect.width) // 2
+        best_rect_text_y = (self.best_y + (self.box_height - best_rect.height) // 2 ) + (self.box_height * 0.05)
+        game.screen.blit(best_text, (best_rect_text_x, best_rect_text_y))
 
-        text_x = self.best_x + (self.box_width - best_rect.width) // 2
-        text_y = (self.best_y + (self.box_height - best_rect.height) // 2 ) + (self.box_height * 0.05)
-        
-        game.screen.blit(best_text, (text_x, text_y))
-
-
+        #The title "Best" blitted just above the rectangle
         title = self.title_font.render(str("Best"), True, colours.GREY_BLACK)
         title_rect = title.get_rect()
-
         title_x = self.best_x + (self.box_width - title_rect.width) // 2
         title_y = (self.best_y + (self.box_height - title_rect.height) // 2) - 35
-
         game.screen.blit(title, (title_x, title_y))
     
     def _draw_end_game(self):
-
+        """
+        This function draws the endgame state
+        This consists of a translucent rect blitted over the board in yellow
         
+        If the user has won, we will draw:
+            - a try again button and a continue button
+        and if they have lost then only the try again button is displayed
+        """
         pygame.draw.rect(self.transparent_surface, (237, 207, 114, 100), self.transparent_surface.get_rect())
         game.screen.blit(self.transparent_surface, self.rect)
 
@@ -191,20 +220,14 @@ class Board(list):
             self.continue_button.draw()
         self.try_again_button.draw()
         
-    
+        """
+        This is a title indicating the end gamestate state
+        For example You Won or You Lose
+        """
         text = self.end_game_font.render(self.end_game_text, True, self.end_game_text_colour)
         text_x = (game.SCREEN_WIDTH  - text.get_width()) // 2
         text_y = (game.SCREEN_HEIGHT - text.get_height()) // 2 - 85
         game.screen.blit(text, (text_x, text_y))
-
-    def print_board(self):
-        import os
-        clear = lambda: os.system('clear')
-        clear()
-
-        for row in self:
-            print(row)
-
 
 
     def handle(self, event):
@@ -251,12 +274,34 @@ class Board(list):
         return True
     
 
+
     def get_remaining_spaces(self):
         """
         This function simple counts the number of current free tiles on the board
         That is to say when the tile has a value of 0
         """
         return sum (1 for row in self for tile in row if not tile.value)
+
+    def get_next_position(self, direction, current_position):
+        """
+        This function will simply return the next cardinal position based upon the direction given
+        for example:
+        if (0, 0) if passed with direciton left the return value is: (0, -1)
+        """
+        row, column = current_position
+
+        if direction in ("left", "a"):
+            return (row, column - 1)
+        
+        elif direction in ("right", "d"):
+            return (row, column + 1)
+        
+        elif direction in ("up", "w"):
+            return (row - 1, column)
+        
+        elif direction in ("down", "d"):
+            return (row + 1, column)
+
 
     def shift(self, direction, row, column, locked_positions):
         
@@ -266,7 +311,7 @@ class Board(list):
             new_position = new_row, new_column =  self.get_next_position(direction, (row, column))
             positions = [(new_row, new_column)]
 
-            while (0 <= new_row < self.rows) and (0 <= new_column < self.columns):
+            while self.check_in_bounds(new_row, new_column):
 
                 if self[row][column].value == self[new_row][new_column].value:
                     if new_position in locked_positions: break
@@ -293,26 +338,10 @@ class Board(list):
                 shifted = True
             return shifted
                 
-    def get_next_position(self, direction, current_position):
-        """
-        This function will simply return the next cardinal position based upon the direction given
-        for example:
-        if (0, 0) if passed with direciton left the return value is: (0, -1)
-        """
-        row, column = current_position
 
-        if direction in ("left", "a"):
-            return (row, column - 1)
-        
-        elif direction in ("right", "d"):
-            return (row, column + 1)
-        
-        elif direction in ("up", "w"):
-            return (row - 1, column)
-        
-        elif direction in ("down", "d"):
-            return (row + 1, column)
     
+
+
     def check_end_game(self):
         """
         This funciton checks the endgame states based upon whether there are spaces left on the board
@@ -345,7 +374,7 @@ class Board(list):
                 for tile in row:
                     directions = [self.get_next_position(direction, tile.position) for direction in ("left", "right", "up", "down")]
                     #if there is at least one valid move we can return from this function as there has been no lose yet
-                    if any(1 for (row, column) in directions if self.in_bounds(row, column) and self[row][column].value == tile.value):
+                    if any(1 for (row, column) in directions if self.check_in_bounds(row, column) and self[row][column].value == tile.value):
                         return 
                 
             gamestate.lose = True
@@ -354,7 +383,7 @@ class Board(list):
             self.end_game_text_colour = colours.GREY_BLACK
             sound.lose.play()
           
-    def in_bounds(self, row, column):
+    def check_in_bounds(self, row, column):
         """
         This function checks to see if the given row and column provided is within the bounds of the board
         """
