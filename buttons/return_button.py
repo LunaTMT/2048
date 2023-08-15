@@ -1,7 +1,7 @@
 import pygame
 import gamestate
 from buttons.button import Button
-
+import assets.sounds as sounds
 
 class ReturnButton(Button):
     
@@ -40,6 +40,6 @@ class ReturnButton(Button):
             if self.rect.collidepoint(event.pos):
                 gamestate.return_to_menu()
                 self.init_menu_buttons()
-                self.select_sound.play()
+                sounds.click.play()
 
                 

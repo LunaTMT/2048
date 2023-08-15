@@ -13,16 +13,28 @@ class MenuButton(Button):
         self.font = pygame.font.Font(None, 30)
         self.highlight_text = highlight_text
 
-        
-        self.default_text_colour = self.text_colour = colours.text,
-        self.default_outer_rect_colour = self.outer_rect_colour = colours.board
+        self.default_text_colour = self.text_colour = colours.GREY_BLACK,
+        self.default_outer_rect_colour = self.outer_rect_colour = colours.BOARD
         self.default_text = self.text
 
     def draw(self):
+        """
+        This funciton daws the menu button 
+            - its base rectangle
+            - the inner rectangle and,
+            - the text
+        
+        If the user hovers over the button its outer rectangle and text are both changed
+        The default layout will be the board grid size, say:
+        4X4
+        5X5
+
+        Upon highlighting over it we will see the grid goal. e.g. 2048/4096
+        """
         self._draw_base_rectangle()
 
         if self.hover:
-            self.outer_rect_colour = colours.yellow
+            self.outer_rect_colour = colours.YELLOW
             self.text_colour = colours.WHITE  
             self.text = self.highlight_text
             
@@ -44,7 +56,7 @@ class MenuButton(Button):
         inner_x = self.width * 0.1 // 2
         inner_y = self.height * 0.2 // 2
         inner_rect = pygame.Rect(inner_x, inner_y, self.width*0.9, self.height*0.8)
-        pygame.draw.rect(self.surface, colours.default_tile, inner_rect, border_radius=5)
+        pygame.draw.rect(self.surface, colours.DEFUALT_TILE, inner_rect, border_radius=5)
 
     def _draw_text(self):
         text = self.font.render(self.text, True, self.text_colour)

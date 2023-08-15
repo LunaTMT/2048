@@ -104,7 +104,6 @@ class Board(list):
     def generate_random_block(self):
         #10% chance for 4 spawning
         #90% chance for 2 spawning
-        print("gen")
         row, column = randint(0, self.rows - 1), randint(0, self.columns - 1)
         while self[row][column].value != 0:
             row, column = randint(0, self.rows - 1), randint(0, self.columns - 1)
@@ -113,10 +112,7 @@ class Board(list):
 
     def draw(self):
 
-        if self.get_remaining_spaces() == 0:
-            self.check_lose()
-        elif not gamestate.continuing:
-            self.check_win()           
+
 
         self.reset_button.draw()
         self._draw_score()
@@ -128,7 +124,7 @@ class Board(list):
             self._draw_end_game()
 
     def _draw_base(self):
-        pygame.draw.rect(self.screen, colours.board, self.rect, border_radius=10)
+        pygame.draw.rect(self.screen, colours.BOARD, self.rect, border_radius=10)
 
                 
     
@@ -151,11 +147,11 @@ class Board(list):
         text_x = self.score_rect.x + (self.score_rect.width - score_width) // 2
         text_y = (self.score_rect.y + (self.score_rect.height - score_height) // 2 ) + (self.score_rect.height * 0.05)
 
-        pygame.draw.rect(game.screen, colours.default_tile, self.score_rect, border_radius=5)
+        pygame.draw.rect(game.screen, colours.DEFUALT_TILE, self.score_rect, border_radius=5)
         game.screen.blit(score_text, (text_x, text_y))
 
         
-        title = self.title_font.render(str("Score"), True, colours.text)
+        title = self.title_font.render(str("Score"), True, colours.GREY_BLACK)
         title_rect = title.get_rect()
 
         title_x = self.score_x + (self.score_width - title_rect.width) // 2
@@ -165,7 +161,7 @@ class Board(list):
 
     def _draw_best(self):
         self.best_score_rect = pygame.Rect(self.best_x, self.best_y, self.box_width, self.box_height)
-        pygame.draw.rect(game.screen, colours.default_tile, self.best_score_rect, border_radius=5)
+        pygame.draw.rect(game.screen, colours.DEFUALT_TILE, self.best_score_rect, border_radius=5)
         
         best_text = self.number_font.render(str(self.best), True, colours.WHITE)
         best_rect = best_text.get_rect()
@@ -176,7 +172,7 @@ class Board(list):
         game.screen.blit(best_text, (text_x, text_y))
 
 
-        title = self.title_font.render(str("Best"), True, colours.text)
+        title = self.title_font.render(str("Best"), True, colours.GREY_BLACK)
         title_rect = title.get_rect()
 
         title_x = self.best_x + (self.box_width - title_rect.width) // 2
@@ -251,10 +247,15 @@ class Board(list):
             if gamestate.win:
                 self.continue_button.handle(event)
         
+        self.check_end_game()
         return True
     
 
     def get_remaining_spaces(self):
+        """
+        This function simple counts the number of current free tiles on the board
+        That is to say when the tile has a value of 0
+        """
         return sum (1 for row in self for tile in row if not tile.value)
 
     def shift(self, direction, row, column, locked_positions):
@@ -293,7 +294,11 @@ class Board(list):
             return shifted
                 
     def get_next_position(self, direction, current_position):
- 
+        """
+        This function will simply return the next cardinal position based upon the direction given
+        for example:
+        if (0, 0) if passed with direciton left the return value is: (0, -1)
+        """
         row, column = current_position
 
         if direction in ("left", "a"):
@@ -308,40 +313,49 @@ class Board(list):
         elif direction in ("down", "d"):
             return (row + 1, column)
     
-    def check_win(self):
+    def check_end_game(self):
+        """
+        This funciton checks the endgame states based upon whether there are spaces left on the board
+        """
+        if self.get_remaining_spaces() == 0:
+            self.check_lose()
+        else:
+            self.check_win()   
 
+    def check_win(self):
+        """
+        This function simply check to see if any tile on the board is identical to the game goal
+        """
         for row in self:
             for tile in row:
-
                 if tile.value == int(game.goal):
-                    sound.win.play()
                     gamestate.continuing = True
                     gamestate.win = True
                     gamestate.end_game = True
                     self.end_game_text = "You Win"
                     self.end_game_text_colour = colours.WHITE
-                    
-
-
-                    """
-                    stop all handling of keys and only allow clicking
-                    
-                    """
+                    sound.win.play()
 
     def check_lose(self):
+        """
+        This function checks to see if there are not more valid shifts to be made for each tile
+        """
         if not gamestate.lose:
             for row in self:
                 for tile in row:
                     directions = [self.get_next_position(direction, tile.position) for direction in ("left", "right", "up", "down")]
+                    #if there is at least one valid move we can return from this function as there has been no lose yet
                     if any(1 for (row, column) in directions if self.in_bounds(row, column) and self[row][column].value == tile.value):
                         return 
                 
             gamestate.lose = True
             gamestate.end_game = True
             self.end_game_text = "You Lose"
-            self.end_game_text_colour = colours.text
+            self.end_game_text_colour = colours.GREY_BLACK
             sound.lose.play()
- 
-            
+          
     def in_bounds(self, row, column):
+        """
+        This function checks to see if the given row and column provided is within the bounds of the board
+        """
         return (0 <= row < self.rows) and (0 <= column < self.columns)

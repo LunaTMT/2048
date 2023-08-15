@@ -1,8 +1,8 @@
 import pygame
 import game
 import assets.colours as colours
+import assets.sounds as sounds
 
-#This class centers as the parent class for menu_button and reset_button
 class Button:
 
     def __init__(self, interface, x=0, y=0, width=50, height=50, font=None, text=None):
@@ -25,10 +25,7 @@ class Button:
 
         self.hover = False
         self.clicked = False
-        
-        self.select_sound = pygame.mixer.Sound("assets/sounds/click.wav")
-        self.select_sound.set_volume(0.1)
-
+    
    
     def draw(self) -> None:
         """
@@ -53,7 +50,7 @@ class Button:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if self.rect.collidepoint(event.pos):
                 self.clicked = True
-                self.select_sound.play()
+                sounds.click.play()
                 return self.default_text
            
                 

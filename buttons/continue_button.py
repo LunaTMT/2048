@@ -1,5 +1,7 @@
 import pygame
 import gamestate
+import assets.sounds as sound
+
 from .reset_button import ResetButton
 
 class ContinueButton(ResetButton):
@@ -20,4 +22,4 @@ class ContinueButton(ResetButton):
             if self.rect.collidepoint(event.pos):
                 gamestate.reset_endgame_states()
                 gamestate.continuing = True
-                self.select_sound.play()
+                sound.click.play()

@@ -1,12 +1,9 @@
 import pygame
 import game
-import time
 import gamestate
 
-from board.tile import Tile
-from .button import Button
 import assets.colours as colours
-import assets.sounds as sound
+import assets.sounds as sounds
 
 class ResetButton():
 
@@ -21,11 +18,10 @@ class ResetButton():
   
         self.font = pygame.font.Font(None, int(self.width * 0.2))
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
-        self.default_rect_colour = self.rect_colour = colours.new_game
+        self.default_rect_colour = self.rect_colour = colours.RESET_BUTTON
 
         self.hover = False
         self.altered = False
-
 
 
     def draw(self) -> None:
@@ -35,7 +31,7 @@ class ResetButton():
 
     def _draw_rect(self):
         if self.hover:
-            self.rect_colour = colours.yellow
+            self.rect_colour = colours.YELLOW
         else:
             self.rect_colour = self.default_rect_colour
         
@@ -61,7 +57,7 @@ class ResetButton():
             if self.rect.collidepoint(event.pos):
                 self.board.generate()
                 gamestate.reset_endgame_states()
-                sound.click.play()
+                sounds.click.play()
         
 
         
