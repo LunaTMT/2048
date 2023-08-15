@@ -69,10 +69,11 @@ Instead of getting overly frustrated by attempting this, I think it's probably b
 
 1. Doodle Jump
 2. Tetris
-3. Pacman
-4. Connect Four&#x20;
-5. Asteroids
-6. Flappy Birds
-7. Tron (This would be a good networking project)
-8. Conway’s Game of Life
-9. Typing - Destroy the letters that come down the screen by typing
+3. Bubbleshooter
+4. Pacman
+5. Connect Four&#x20;
+6. Asteroids
+7. Flappy Birds
+8. Tron (This would be a good networking project)
+9. Conway’s Game of Life
+10. Typing - Destroy the letters that come down the screen by typing
