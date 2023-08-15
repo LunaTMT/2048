@@ -6,17 +6,14 @@ from random import randint
 
 from pygame.locals import *
 from .tile import Tile
+from buttons.reset_button import ResetButton
+from buttons.continue_button import ContinueButton
 
 import pygame
 import assets.colours as colours
 import assets.sounds as sound
 import game
 import gamestate
-
-from buttons.reset_button import ResetButton
-from buttons.continue_button import ContinueButton
-
-
 
 class Board(list):
 
@@ -81,8 +78,6 @@ class Board(list):
                                             y =  self.rect.centery - self.box_height // 2)
 
         self.valid_inputs = (K_UP, K_DOWN, K_LEFT, K_RIGHT, K_w, K_s, K_a, K_d)
-
-        
         self.generate()
 
     def generate(self):
@@ -282,9 +277,6 @@ class Board(list):
                 self.continue_button.handle(event)
         
         self.check_end_game()
-        
-    
-
 
     def get_remaining_spaces(self):
         """
@@ -315,7 +307,10 @@ class Board(list):
 
 
     def shift(self, direction, row, column, locked_positions):
-        
+        """
+        This function shifts the given tile/block to the maximum boundary it can reach given the direction of movement
+        It returns a boolean to indicate whether a shift was possible or not
+        """
         if self[row][column].value != 0:
             shifted = False
             new_position = new_row, new_column =  self.get_next_position(direction, (row, column))
@@ -323,35 +318,61 @@ class Board(list):
 
             while self.check_in_bounds(new_row, new_column):
 
+                """
+                If the current tile is the same as the new one then we can merge the tiles
+                This is multipling the value by 2.
+                """
                 if self[row][column].value == self[new_row][new_column].value:
-                    if new_position in locked_positions: break
-                    shifted = True
+                    """
+                    If the new position is in a locked position we cannot go further and so break
+                    A locked position is one where a merge has already taken place.
+                    
+                    for example:
+                    
+                    Without locked positions the following row 
+                    2 2 2 2
+                    becomes 
+                    0 0 0 8 
 
+                    with locked positions, however, it becomes:
+                    0 0 4 4
+                    0 1 2 3
+                    with index positions 3 and 2 being locked
+
+                    In short, the set 'locked positions' contains all positions where one merge has already taken place 
+                    """
+                    if new_position in locked_positions: break
+
+                    #Score and Best score is updated accordingly
                     self.score += self[row][column].value
                     self.best = max(self.best, self.score)
-                    
-                    locked_positions.add((new_position))
-
+                
+                    #New and old value changed accordingly 
                     self[new_row][new_column].value *= 2
                     self[row][column].value = 0
-                    return shifted
 
+                    locked_positions.add((new_position))
+                    return True
+
+                #If the new tile is not empty or the same as the original tile we break
+                #This means we have hit "the wall" of the given row and no more shifts will take place
                 elif self[new_row][new_column].value not in (0, self[row][column].value):
                     break
+                
+                #The new position is valid and a shiftable position for the given tile
+                else:
+                    new_position = new_row, new_column = self.get_next_position(direction, (new_row, new_column))
+                    positions.append((new_position))
 
-                new_position = new_row, new_column = self.get_next_position(direction, (new_row, new_column))
-                positions.append((new_position))
-
+            """
+            This last part finds the max boundary tile the initial tile can "move" to and then updates the tile
+            """
             if len(positions) >= 2:
                 new_row, new_column = positions[-2]
                 self[row][column].value, self[new_row][new_column].value = self[new_row][new_column].value, self[row][column].value  
                 shifted = True
             return shifted
                 
-
-    
-
-
     def check_end_game(self):
         """
         This funciton checks the endgame states based upon whether there are spaces left on the board
