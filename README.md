@@ -61,17 +61,17 @@ https://github.com/LunaTMT/2048/assets/44672093/232dd526-988d-42c6-811c-f52ec66c
 
 ### Personal Overview
 
-Fortunately, this project was fairly easy to accomplish. However, attempting to add sliding animations proved too difficult. I reached a point where I felt that my whole code stucture would have to be altered to achieve the desired result. In short, It seemed to me that I would need to rewrite everything.&#x20;
+Fortunately, this project was fairly easy to accomplish. However, attempting to add sliding animations proved too difficult. I reached a point where I felt that my whole code stucture would have to be altered to achieve the desired result. In short, It seemed to me that I would need to rewrite everything.
 
-Instead of getting overly frustrated by attempting this, I think it's probably better that I set this aside, focus on building new projects and come back to it. Most likely the knowledge I will gain from building new projects will give me the requisite knowledge to remake this game much more efficiently and with the animations.&#x20;
+Instead of getting overly frustrated by attempting this, I think it's probably better that I set this aside, focus on building new projects and come back to it. Most likely the knowledge I will gain from building new projects will give me the requisite knowledge to remake this game much more efficiently and with the animations.
 
 #### Future Projects
 
-1. Doodle Jump
+1. ~~Doodle Jump~~
 2. Tetris
 3. Bubbleshooter
 4. Pacman
-5. Connect Four&#x20;
+5. Connect Four
 6. Asteroids
 7. Flappy Birds
 8. Tron (This would be a good networking project)
